@@ -1,0 +1,97 @@
+import json
+from collections import defaultdict
+from datetime import datetime
+
+class ExpenseTracker:
+    def __init__(self):
+        self.expenses = defaultdict(list)
+
+    def add_expense(self, category, amount, description):
+        today = datetime.today().strftime('%Y-%m-%d')
+        self.expenses[today].append({'category': category, 'amount': amount, 'description': description})
+
+    def view_expenses(self):
+        for date, expenses in self.expenses.items():
+            print(f"Date: {date}")
+            for expense in expenses:
+                print(f"Category: {expense['category']}, Amount: ${expense['amount']}, Description: {expense['description']}")
+
+    def monthly_summary(self, month, year):
+        total_expenses = 0
+        for date, expenses in self.expenses.items():
+            if datetime.strptime(date, '%Y-%m-%d').month == month and datetime.strptime(date, '%Y-%m-%d').year == year:
+                for expense in expenses:
+                    total_expenses += expense['amount']
+        print(f"Total expenses for {datetime(year, month, 1).strftime('%B %Y')}: ${total_expenses}")
+
+    def category_summary(self, category):
+        total_expenses = 0
+        for expenses in self.expenses.values():
+            for expense in expenses:
+                if expense['category'].lower() == category.lower():
+                    total_expenses += expense['amount']
+        print(f"Total expenses for {category}: ${total_expenses}")
+
+    def save_expenses(self, filename):
+        with open(filename, 'w') as file:
+            json.dump(self.expenses, file)
+
+    def load_expenses(self, filename):
+        with open(filename, 'r') as file:
+            self.expenses = json.load(file)
+
+
+def main():
+    tracker = ExpenseTracker()
+
+    while True:
+        print("\nExpense Tracker Menu:")
+        print("1. Add Expense")
+        print("2. View Expenses")
+        print("3. Monthly Summary")
+        print("4. Category Summary")
+        print("5. Save Expenses")
+        print("6. Load Expenses")
+        print("7. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            category = input("Enter expense category: ")
+            amount = float(input("Enter amount spent: "))
+            description = input("Enter brief description: ")
+            tracker.add_expense(category, amount, description)
+            print("Expense added successfully!")
+
+        elif choice == '2':
+            tracker.view_expenses()
+
+        elif choice == '3':
+            month = int(input("Enter month (1-12): "))
+            year = int(input("Enter year: "))
+            tracker.monthly_summary(month, year)
+
+        elif choice == '4':
+            category = input("Enter category: ")
+            tracker.category_summary(category)
+
+        elif choice == '5':
+            filename = input("Enter filename to save expenses: ")
+            tracker.save_expenses(filename)
+            print("Expenses saved successfully!")
+
+        elif choice == '6':
+            filename = input("Enter filename to load expenses from: ")
+            tracker.load_expenses(filename)
+            print("Expenses loaded successfully!")
+
+        elif choice == '7':
+            print("Exiting Expense Tracker. Goodbye!")
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
+
+
+if __name__ == "__main__":
+    main()
